@@ -1,5 +1,5 @@
 
-name: Hermes - Validacao inicial
+name: Hermes - Instalacao e validacao
 
 on:
   workflow_dispatch:
@@ -8,21 +8,17 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  install:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Check environment
+      - name: Instalar Hermes Agent
         run: |
-          python --version
-          git --version
-          echo "Ambiente GitHub Actions pronto."
+          curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive --skip-browser --skip-computer-use
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Validar instalacao
+        run: |
+          hermes --help
+          echo "Hermes instalado com sucesso."
