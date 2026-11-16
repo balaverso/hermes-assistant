@@ -18,7 +18,21 @@ jobs:
           curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive --skip-browser --skip-computer-use
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Validar instalacao
+      
+      - name: Validar acesso NVIDIA NIM
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA }}
         run: |
-          hermes --help
-          echo "Hermes instalado com sucesso."
+          if [ -z "$NVIDIA_API_KEY" ]; then
+            echo "Secret NVIDIA não encontrada."
+            exit 1
+          fi
+
+          curl -fsS \
+            -H "Authorization: Bearer $NVIDIA_API_KEY" \
+            https://integrate.api.nvidia.com/v1/models \
+            -o /tmp/nvidia-models.json
+
+          python -c "import json; d=json.load(open('/tmp/nvidia-models.json')); print('Autenticacao NVIDIA OK'); print('Modelos encontrados:', len(d.get('data', [])))"
+    
+
