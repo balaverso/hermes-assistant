@@ -35,4 +35,36 @@ jobs:
 
           python -c "import json; d=json.load(open('/tmp/nvidia-models.json')); print('Autenticacao NVIDIA OK'); print('Modelos encontrados:', len(d.get('data', [])))"
     
+      
+      - name: Testar geracao de texto NVIDIA
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA }}
+        run: |
+          curl -fsS \
+            https://integrate.api.nvidia.com/v1/chat/completions \
+            -H "Authorization: Bearer $NVIDIA_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "model": "nvidia/nemotron-3.5-lightning",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Responda em portugues: diga que o Hermes esta conectado a NVIDIA."
+                }
+              ],
+              "max_tokens": 100,
+              "temperature": 0.2
+            }' \
+            -o /tmp/nvidia-response.json
+
+          python - <<'PY'
+          import json
+          with open("/tmp/nvidia-response.json") as f:
+              data = json.load(f)
+          answer = data["choices"][0]["message"]["content"]
+          print("RESPOSTA DO MODELO NVIDIA:")
+          print(answer)
+          if not answer:
+              raise SystemExit("Resposta vazia.")
+          PY
 
