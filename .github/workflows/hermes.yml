@@ -53,7 +53,10 @@ jobs:
                 }
               ],
               "max_tokens": 100,
-              "temperature": 0.2
+              "temperature": 0.2,
+              "chat_template_kwargs": {
+                "enable_thinking": false
+              }
             }' \
             -o /tmp/nvidia-response.json
 
